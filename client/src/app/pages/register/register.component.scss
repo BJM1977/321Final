@@ -1,0 +1,27 @@
+.register-card {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.error-message {
+  color: red;
+  margin-top: 12px;
+}
+
+.success-message {
+  color: green;
+  margin-top: 12px;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 16px;
+}

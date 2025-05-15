@@ -1,0 +1,38 @@
+<mat-card class="profile-card">
+  <h2>Mein Profil</h2>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Benutzername</mat-label>
+    <input matInput [(ngModel)]="username" disabled>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Rolle</mat-label>
+    <input matInput [(ngModel)]="role" disabled>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Neues Passwort</mat-label>
+    <input matInput [(ngModel)]="newPassword" type="password">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Passwort wiederholen</mat-label>
+    <input matInput [(ngModel)]="confirmPassword" type="password">
+    <mat-error *ngIf="passwordMismatch">
+      Die Passwörter stimmen nicht überein.
+    </mat-error>
+  </mat-form-field>
+
+  <div class="save-button" style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <button mat-flat-button color="primary" (click)="saveChanges()">
+      Änderungen speichern
+    </button>
+    <button mat-stroked-button color="accent" routerLink="/feed">
+      Zurück zu den Feeds
+    </button>
+  </div>
+</mat-card>
+
+<p *ngIf="success" style="color: green;">{{ success }}</p>
+<p *ngIf="error" style="color: red;">{{ error }}</p>

@@ -1,0 +1,35 @@
+<header class="app-header">
+  <mat-toolbar color="primary">
+    <ng-container *ngIf="authService.loggedIn | async; else noLink">
+      <button mat-button routerLink="/feed" style="font-size: 20px; font-weight: bold;">
+        MiniTwitter
+      </button>
+    </ng-container>
+    <ng-template #noLink>
+      <button mat-button disabled style="font-size: 20px; font-weight: bold; opacity: 0.6;">
+        MiniTwitter
+      </button>
+    </ng-template>
+    <span class="spacer"></span>
+
+    <ng-container *ngIf="authService.loggedIn | async; else loginLink">
+      <ng-container *ngIf="authService.username | async as currentUser">
+        <span>Hallo, {{ currentUser }}</span>
+        <button mat-button *ngIf="(authService.role | async) === 'Admin'" routerLink="/users">
+          Userlist
+        </button>
+
+        <!-- Neuer Button: Profil bearbeiten -->
+        <button mat-button routerLink="/profile">
+          Profil bearbeiten
+        </button>
+
+        <button mat-button (click)="logout()">Logout</button>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #loginLink>
+      <button mat-button (click)="goToLogin()">Login</button>
+    </ng-template>
+  </mat-toolbar>
+</header>

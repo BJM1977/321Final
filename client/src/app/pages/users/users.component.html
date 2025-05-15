@@ -1,0 +1,86 @@
+<mat-card *ngIf="!editMode">
+  <mat-card-title>Benutzerverwaltung</mat-card-title>
+
+  <div style="text-align: right; margin-bottom: 10px;">
+    <button mat-stroked-button color="primary" (click)="startCreate()">Neuen Benutzer erstellen</button>
+  </div>
+
+  <table mat-table [dataSource]="users" class="mat-elevation-z1">
+    <ng-container matColumnDef="username">
+      <th mat-header-cell *matHeaderCellDef>Benutzername</th>
+      <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="role">
+      <th mat-header-cell *matHeaderCellDef>Rolle</th>
+      <td mat-cell *matCellDef="let user">{{ user.role }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="active">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let user">
+        {{ user.active ? 'Aktiv' : 'Gesperrt' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Aktionen</th>
+      <td mat-cell *matCellDef="let user">
+        <button mat-icon-button color="primary" (click)="startEdit(user)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteUser(user.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['username', 'role', 'active', 'actions']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['username', 'role', 'active', 'actions']"></tr>
+  </table>
+
+  <!-- Zurück zu den Feeds Button -->
+  <div style="text-align: right; margin-top: 20px;">
+    <button mat-stroked-button color="accent" routerLink="/feed">
+      Zurück zu den Feeds
+    </button>
+  </div>
+</mat-card>
+
+<!-- Bearbeiten / Erstellen -->
+<mat-card class="edit-card" *ngIf="editMode">
+  <mat-card-title>
+    {{ createMode ? 'Neuen Benutzer anlegen' : 'Benutzer bearbeiten' }}
+  </mat-card-title>
+  <mat-card-content>
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Benutzername</mat-label>
+      <input matInput [(ngModel)]="editedUser.username" />
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Passwort</mat-label>
+      <input matInput [(ngModel)]="editedUser.password" type="password" />
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Rolle</mat-label>
+      <mat-select [(ngModel)]="editedUser.role">
+        <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="editedUser.active">
+        <mat-option [value]="true">Aktiv</mat-option>
+        <mat-option [value]="false">Gesperrt</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="button-row">
+      <button mat-stroked-button color="primary" (click)="saveUser()">Speichern</button>
+      <button mat-stroked-button (click)="cancelEdit()">Abbrechen</button>
+    </div>
+  </mat-card-content>
+</mat-card>

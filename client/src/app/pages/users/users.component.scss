@@ -1,0 +1,54 @@
+mat-card {
+  max-width: 850px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+mat-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #3f51b5;
+}
+
+table {
+  width: 100%;
+  border-spacing: 0;
+}
+
+th.mat-header-cell {
+  font-weight: 600;
+  color: #555;
+  background: #f1f1f1;
+}
+
+td.mat-cell {
+  padding: 1rem 0.5rem;
+}
+
+mat-icon {
+  font-size: 20px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 1.2rem;
+}
+
+.edit-card {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: #fafafa;
+}
+
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
