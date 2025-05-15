@@ -1,109 +1,18 @@
-<div class="feed-container">
-  <h2 class="feed-title">MiniTwitter Feed</h2>
-
-  <!-- Beitrag erstellen -->
-  <mat-card class="new-post">
-    <mat-card-content>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Was möchtest du posten?</mat-label>
-        <textarea
-          matInput
-          [(ngModel)]="newPostContent"
-          rows="3"
-          placeholder="Schreibe etwas..."
-        ></textarea>
-      </mat-form-field>
-      <div class="post-button">
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="createPost()"
-          [disabled]="!newPostContent.trim()"
-        >
-          Posten
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Beiträge anzeigen -->
-  <mat-card class="post-card" *ngFor="let post of posts">
-    <mat-card-header>
-      <mat-card-title class="username">{{ post.username }}</mat-card-title>
-
-      <!-- Admins, Moderatoren oder Ersteller dürfen löschen -->
-      <button
-        *ngIf="isAdmin || post.username === loggedInUsername"
-        mat-icon-button
-        color="warn"
-        (click)="deletePost(post)"
-        aria-label="Post löschen"
-        style="margin-left:auto"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
-
-    </mat-card-header>
-
-    <mat-card-content>
-      <p>{{ post.content }}</p>
-    </mat-card-content>
-
-    <mat-card-actions align="start">
-      <button
-        mat-button
-        [class.active]="post.liked"
-        (click)="toggleLike(post)"
-      >
-        👍 {{ post.likeCount }}
-      </button>
-
-      <button
-        mat-button
-        [class.active]="post.disliked"
-        (click)="toggleDislike(post)"
-      >
-        👎 {{ post.dislikeCount }}
-      </button>
-
-      <button mat-button (click)="toggleComment(post)">
-        💬 {{ post.comments.length }} Kommentar{{ post.comments.length === 1 ? '' : 'e' }}
-      </button>
-    </mat-card-actions>
-
-    <!-- Kommentar-Eingabe -->
-    <div *ngIf="post.showCommentBox" class="comment-box">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Kommentar</mat-label>
-        <input
-          matInput
-          [(ngModel)]="post.commentText"
-          placeholder="Schreibe einen Kommentar..."
-        />
-      </mat-form-field>
-      <div class="comment-actions">
-        <button mat-stroked-button color="accent" (click)="submitComment(post)">
-          Absenden
-        </button>
-      </div>
+<div class="chat-container">
+  <div class="messages">
+    <div *ngFor="let message of messages">
+      <strong>{{ message.username }}:</strong> {{ message.text }}
     </div>
+  </div>
 
-    <!-- Kommentare anzeigen -->
-    <div *ngIf="post.comments.length > 0" class="comments">
-      <div *ngFor="let comment of post.comments" class="comment-line">
-        💬 <strong>{{ comment.username }}</strong>: {{ comment.content }}
-
-        <button
-          *ngIf="isAdmin || comment.username === loggedInUsername"
-          mat-icon-button
-          color="warn"
-          (click)="deleteComment(comment.id, post)"
-          aria-label="Kommentar löschen"
-          style="margin-left: 10px;"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-    </div>
-  </mat-card>
+  <div class="input-area">
+    <mat-form-field class="full-width">
+      <input
+        matInput
+        [(ngModel)]="messageText"
+        placeholder="Nachricht schreiben..."
+        (keyup.enter)="sendMessage()"
+      />
+    </mat-form-field>
+  </div>
 </div>

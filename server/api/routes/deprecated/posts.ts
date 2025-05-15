@@ -1,9 +1,9 @@
 import { Express } from 'express'
-import { Database } from '../../database';
-import { authMiddleware } from '../middleware/authMiddleware';
-import { requireRoles } from '../middleware/roleMiddleware';
-import { authenticatedHandler } from '../types/route.helpers'
-import { DeletePostRequest } from '../types/auth.types'
+import { Database } from '../../../database';
+import { authMiddleware } from '../../middleware/authMiddleware';
+import { requireRoles } from '../../middleware/roleMiddleware';
+import { authenticatedHandler } from '../../types/route.helpers'
+import { DeletePostRequest } from '../../types/auth.types'
 
 
 export function registerPostRoutes(app: Express, db: Database) {

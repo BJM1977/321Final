@@ -1,10 +1,10 @@
 import { Express } from 'express'
-import { Database } from '../../database'
-import { authMiddleware } from '../middleware/authMiddleware';
-import { requireRoles } from '../middleware/roleMiddleware';
+import { Database } from '../../../database'
+import { authMiddleware } from '../../middleware/authMiddleware';
+import { requireRoles } from '../../middleware/roleMiddleware';
 import { Request, Response } from 'express';
-import { authenticatedHandler } from '../types/route.helpers'
-import { CreateCommentRequest } from '../types/auth.types'
+import { authenticatedHandler } from '../../types/route.helpers'
+import { CreateCommentRequest } from '../../types/auth.types'
 
 export function registerCommentRoutes(app: Express, db: Database) {
 

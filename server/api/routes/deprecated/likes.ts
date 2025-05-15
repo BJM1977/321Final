@@ -1,7 +1,7 @@
 import { Express } from 'express';
-import { Database } from '../../database';
-import { authMiddleware } from '../middleware/authMiddleware';
-import { AuthenticatedRequest } from '../types/auth.types';
+import { Database } from '../../../database';
+import { authMiddleware } from '../../middleware/authMiddleware';
+import { AuthenticatedRequest } from '../../types/auth.types';
 
 type LikeType = 'Like' | 'Dislike';
 
