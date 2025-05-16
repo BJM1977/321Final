@@ -1,2 +1,2 @@
-export * from './database.ts'
-export * from './schema.ts'
+import { prisma } from './database';
+export { prisma };

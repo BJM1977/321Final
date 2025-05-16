@@ -1,53 +1,84 @@
-import express, { Express } from 'express'
-import { API } from './api'
-import http from 'http'
-import { Database } from './database'
-import cors from 'cors'
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import { Server } from 'socket.io';
+import http from 'http';
+import { userRouter } from './api/routes/users';
+import { authRouter } from './api/routes/auth';
+import { roleRouter } from './api/routes/roles';
 
-class Backend {
-  // Properties
-  private _app: Express
-  private _api: API
-  private _database: Database
-  private _env: string
+dotenv.config();
 
-  // Getters
-  public get app(): Express {
-    return this._app
-  }
+const app = express();
+const server = http.createServer(app);
 
-  public get api(): API {
-    return this._api
-  }
+// WebSocket-Server (socket.io)
+const io = new Server(server, {
+  cors: {
+    origin: '*', // ggf. auf dein Frontend beschränken
+    methods: ['GET', 'POST'],
+  },
+});
 
-  public get database(): Database {
-    return this._database
-  }
-
-  // Constructor
-  constructor() {
-    this._app = express()
-    this._app.use(express.json())
-    this._app.use(cors({
-      origin: 'http://localhost:4200',
-      credentials: true
-    }));
-    this._database = new Database()
-    this._api = new API(this._app)
-    this._env = process.env.NODE_ENV || 'development'
-
-    this.startServer()
-  }
-
-  // Methods
-  private startServer(): void {
-    if (this._env === 'production') {
-      http.createServer(this._app).listen(3000, '0.0.0.0', () => {
-        console.log('Server is listening on 0.0.0.0:3000')
-      })
-    }
-  }
+interface ChatMessage {
+  username: string;
+  text: string;
+  timestamp: string;
 }
 
-const backend = new Backend()
-export const viteNodeApp = backend.app
+interface UserStatus {
+  username: string;
+  typing: boolean;
+}
+
+let chatHistory: ChatMessage[] = [];
+
+io.on('connection', (socket) => {
+  console.log('🟢 WebSocket verbunden:', socket.id);
+
+  socket.on('join', (username: string) => {
+    console.log(`👋 ${username} ist dem Chat beigetreten.`);
+    socket.broadcast.emit('chat:message', {
+      username: 'System',
+      text: `${username} ist dem Chat beigetreten.`,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Nur an neuen Client senden
+    socket.emit('chat:history', chatHistory);
+  });
+
+  socket.on('chat:message', (msg: { username: string; text: string }) => {
+    const message: ChatMessage = {
+      ...msg,
+      timestamp: new Date().toISOString(),
+    };
+    chatHistory.push(message);
+    io.emit('chat:message', message);
+  });
+
+  socket.on('chat:typing', (status: UserStatus) => {
+    io.emit('chat:typing', status);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('🔌 WebSocket getrennt:', socket.id);
+  });
+});
+
+// Middleware
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json());
+app.use(cookieParser());
+
+// Routen
+app.use('/users', userRouter);
+app.use('/auth', authRouter);
+app.use('/roles', roleRouter);
+
+// Start
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server läuft auf http://localhost:${PORT}`);
+});
