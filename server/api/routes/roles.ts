@@ -1,49 +1,25 @@
-import { Express, Request, RequestHandler, Response } from 'express'
-import { Database } from '../../database';
-import { authMiddleware } from '../middleware/authMiddleware';
-import { requireRoles } from '../middleware/roleMiddleware';
-import { RoleType, RoleUpdateBody } from '../types/role.types'
+import express from 'express';
 
+const router = express.Router();
 
-export function registerRoleRoutes(app: Express, db: Database) {
+// 📌 GET /roles
+// Gibt alle verfügbaren Rollen als Liste zurück
+router.get('/', (_req, res) => {
+  const roles = ['User', 'Admin', 'Moderator'];
+  res.status(200).json(roles);
+});
 
-  // Alle Rollen abrufen
-  app.get('/role', authMiddleware, requireRoles(['Admin']), async (_req: Request, res: Response) => {
-    const result = await db.executeSQL('SELECT * FROM roles');
-    res.json(result);
-  });
+// 📌 (Optional) GET /roles/:name → Validierung einzelner Rolle
+router.get('/:name', (req, res) => {
+  const roles = ['User', 'Admin', 'Moderator'];
+  const { name } = req.params;
 
-  // Einzelne Rolle abrufen
-  app.get('/role/:id', authMiddleware, requireRoles(['Admin']), async (req: Request<{ id: string }>, res: Response) => {
-    const result = await db.executeSQL('SELECT * FROM roles WHERE id = ?', [req.params.id]);
-    res.json(result[0]);
-  });
+  if (roles.includes(name)) {
+    res.status(200).json({ valid: true, role: name });
+  } else {
+    res.status(404).json({ valid: false, error: 'Rolle nicht gefunden' });
+  }
+});
 
-  // Rolle aktualisieren
-  app.put(
-    '/role/:id',
-    authMiddleware,
-    requireRoles(['Admin']),
-    // Typisierte Middleware
-    (async function handler(req, res) {
-      const { role } = req.body
-
-      const validRoles: RoleType[] = ['User', 'Moderator', 'Admin']
-      if (!validRoles.includes(role)) {
-        return res.status(400).json({ error: 'Ungültiger Rollenwert' })
-      }
-
-      await db.executeSQL('UPDATE roles SET role = ? WHERE id = ?', [role, req.params.id])
-      res.json({ message: 'Role updated' })
-    }) as RequestHandler<{ id: string }, any, RoleUpdateBody>
-  )
-
-
-  // Rolle löschen
-  app.delete('/role/:id', authMiddleware, requireRoles(['Admin']), async (req: Request<{
-    id: string
-  }>, res: Response) => {
-    await db.executeSQL('DELETE FROM roles WHERE id = ?', [req.params.id]);
-    res.json({ message: 'Role deleted' });
-  });
-}
+// ✅ Benannter Export für index.ts
+export const roleRouter = router;

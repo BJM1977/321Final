@@ -1,7 +1,9 @@
 import mysql from 'mysql2/promise'
-import { USER_TABLE, TWEET_TABLE, COMMENT_TABLE, LIKE_TABLE, ROLE_TABLE } from './schema'
+import { USER_TABLE,  ROLE_TABLE } from './schema'
 import bcrypt from 'bcrypt';
+import { PrismaClient } from '@prisma/client';
 
+export const prisma = new PrismaClient();
 export class Database {
   private _pool: mysql.Pool
   private _initialized = false;
@@ -41,9 +43,6 @@ export class Database {
 
     // Tabellen erzeugen
     await this.executeSQL(USER_TABLE);
-    await this.executeSQL(TWEET_TABLE);
-    await this.executeSQL(COMMENT_TABLE);
-    await this.executeSQL(LIKE_TABLE);
     await this.executeSQL(ROLE_TABLE);
 
     // Rollen prüfen

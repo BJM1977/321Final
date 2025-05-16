@@ -1,51 +1,55 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { AuthenticatedRequest, AuthenticatedUser } from '../types/auth.types';
-import { Database } from '../../database';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'meinSuperSecret';
-const db = new Database();
+/**
+ * Validiert Registrierungsdaten
+ */
+export const validateRegister = (req: Request, res: Response, next: NextFunction): void => {
+  const { username, email, password } = req.body;
 
-export async function authMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  const token = req.cookies?.auth_token;
+  if (!username || !email || !password) {
+    res.status(400).json({ error: 'Alle Felder sind erforderlich' });
+    return;
+  }
+
+  if (password.length < 6) {
+    res.status(400).json({ error: 'Passwort muss mindestens 6 Zeichen lang sein' });
+    return;
+  }
+
+  next();
+};
+
+/**
+ * Validiert Login-Daten
+ */
+export const validateLogin = (req: Request, res: Response, next: NextFunction): void => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    res.status(400).json({ error: 'E-Mail und Passwort erforderlich' });
+    return;
+  }
+
+  next();
+};
+
+/**
+ * Middleware zum Schutz von Routen mit JWT-Token
+ */
+export const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
+  const token = req.cookies?.token;
 
   if (!token) {
-    res.status(401).json({ error: 'Kein Token gefunden' });
+    res.status(401).json({ error: 'Nicht autorisiert – kein Token gefunden' });
     return;
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: number };
-
-    const [user] = await db.executeSQL<AuthenticatedUser[]>(
-      'SELECT id, username, role, active FROM users WHERE id = ?',
-      [decoded.id]
-    );
-
-    if (!user) {
-      res.status(401).json({ error: 'Benutzer nicht gefunden' });
-      return;
-    }
-
-    if (!user.active) {
-      res.status(403).json({ error: 'Benutzerkonto gesperrt' });
-      return;
-    }
-
-    (req as AuthenticatedRequest).user = {
-      id: user.id,
-      username: user.username,
-      role: user.role,
-      active: user.active
-    };
-
-    next();
-  } catch (err) {
-    console.error('JWT Fehler:', err);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'defaultsecret');
+    (req as any).user = decoded;
+    next(); // ✅ Token korrekt → weiter
+  } catch {
     res.status(403).json({ error: 'Token ungültig oder abgelaufen' });
   }
-}
+};
