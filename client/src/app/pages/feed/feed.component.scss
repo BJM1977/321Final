@@ -1,67 +1,59 @@
-.feed-container {
-  max-width: 700px;
-  margin: 2rem auto;
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   padding: 1rem;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
 }
 
-.feed-title {
-  text-align: center;
-  color: #3f51b5;
-  margin-bottom: 2rem;
-  font-size: 2rem;
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
-.new-post {
-  margin-bottom: 2rem;
+.messages div {
+  margin-bottom: 0.5rem;
+}
+
+.messages strong {
+  color: #007acc;
+}
+
+.input-area {
+  display: flex;
 }
 
 .full-width {
   width: 100%;
 }
 
-.post-button {
+.user-bar {
+  margin-bottom: 1rem;
   display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
+  justify-content: space-between;
+  align-items: center;
+
+  input {
+    margin-left: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
 }
 
-.post-card {
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.post-card p {
-  word-break: break-word;
-  white-space: pre-wrap;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.username {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #3f51b5;
-}
-
-.comment-box {
-  padding: 0 16px 16px;
-  margin-top: 8px;
-}
-
-.comment-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 8px;
-}
-
-.comments {
-  padding: 0 16px 16px;
-  border-left: 4px solid #3f51b52a;
-  margin-top: 10px;
-}
-
-.comments p {
-  margin: 4px 0;
-  font-size: 0.95rem;
-  color: #333;
+.typing-status {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #555;
+  margin-bottom: 0.5rem;
 }
