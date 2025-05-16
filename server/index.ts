@@ -1,83 +1,102 @@
 import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser';
-import { Server } from 'socket.io';
 import http from 'http';
-import { userRouter } from './api/routes/users';
-import { authRouter } from './api/routes/auth';
-import { roleRouter } from './api/routes/roles';
-
-dotenv.config();
+import { Server } from 'socket.io';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { prisma } from './database';
 
 const app = express();
 const server = http.createServer(app);
-
-// WebSocket-Server (socket.io)
 const io = new Server(server, {
   cors: {
-    origin: '*', // ggf. auf dein Frontend beschränken
-    methods: ['GET', 'POST'],
-  },
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
 });
 
-interface ChatMessage {
-  username: string;
-  text: string;
-  timestamp: string;
-}
+// 🧠 Teilnehmer-Tracking (socket.id → username)
+const users = new Map<string, string>();
 
-interface UserStatus {
-  username: string;
-  typing: boolean;
+function broadcastUserList() {
+  const allUsers = Array.from(users.values());
+  io.emit('chat:users', allUsers);
 }
-
-let chatHistory: ChatMessage[] = [];
 
 io.on('connection', (socket) => {
-  console.log('🟢 WebSocket verbunden:', socket.id);
+  console.log(`🟢 Benutzer verbunden: ${socket.id}`);
 
-  socket.on('join', (username: string) => {
-    console.log(`👋 ${username} ist dem Chat beigetreten.`);
+  socket.on('join', async (username: string) => {
+    users.set(socket.id, username);
+    broadcastUserList();
+
+    // Nachricht an andere Benutzer
     socket.broadcast.emit('chat:message', {
       username: 'System',
       text: `${username} ist dem Chat beigetreten.`,
       timestamp: new Date().toISOString(),
     });
 
-    // Nur an neuen Client senden
-    socket.emit('chat:history', chatHistory);
+    // Verlauf an neuen Benutzer senden
+    const history = await prisma.message.findMany({
+      orderBy: { createdAt: 'asc' },
+      take: 50,
+    });
+    socket.emit('chat:history', history);
   });
 
-  socket.on('chat:message', (msg: { username: string; text: string }) => {
-    const message: ChatMessage = {
-      ...msg,
+  socket.on('chat:message', async ({ username, text }) => {
+    const timestamp = new Date().toISOString();
+    const msg = { username, text, timestamp };
+
+    // Speichern in DB
+    await prisma.message.create({
+      data: {
+        username,
+        text,
+      }
+    });
+
+    // Senden an alle
+    io.emit('chat:message', msg);
+  });
+
+  socket.on('chat:typing', ({ username, typing }) => {
+    io.emit('chat:typing', { username, typing });
+  });
+
+  socket.on('chat:rename', (newName: string) => {
+    const oldName = users.get(socket.id);
+    users.set(socket.id, newName);
+    broadcastUserList();
+
+    io.emit('chat:message', {
+      username: 'System',
+      text: `🔄 ${oldName} heißt jetzt ${newName}`,
       timestamp: new Date().toISOString(),
-    };
-    chatHistory.push(message);
-    io.emit('chat:message', message);
-  });
-
-  socket.on('chat:typing', (status: UserStatus) => {
-    io.emit('chat:typing', status);
+    });
   });
 
   socket.on('disconnect', () => {
-    console.log('🔌 WebSocket getrennt:', socket.id);
+    const username = users.get(socket.id);
+    users.delete(socket.id);
+    broadcastUserList();
+
+    if (username) {
+      io.emit('chat:message', {
+        username: 'System',
+        text: `${username} hat den Chat verlassen.`,
+        timestamp: new Date().toISOString(),
+      });
+    }
   });
 });
 
-// Middleware
+// 🔧 Middleware
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Routen
-app.use('/users', userRouter);
-app.use('/auth', authRouter);
-app.use('/roles', roleRouter);
-
-// Start
+// 📡 Start
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`🚀 Server läuft auf http://localhost:${PORT}`);
