@@ -12,12 +12,17 @@ services:
       - m223_project_mariadb:/var/lib/mysql
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: always
     ports:
-      - 9200:80
+      - "8080:80"
     environment:
       PMA_HOST: mariadb
-      MYSQL_ROOT_PASSWORD: root
+      PMA_USER: root
+      PMA_PASSWORD: supersecret123
+    depends_on:
+      - mariadb
 
   backend:
     image: node:18

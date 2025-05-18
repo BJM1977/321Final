@@ -1,6 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
+interface AuthPayload {
+  userId: number;
+  role: string | number; // falls du später Rollen als String speicherst
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthPayload;
+    }
+  }
+}
+
 /**
  * Validiert Registrierungsdaten
  */
@@ -8,13 +21,11 @@ export const validateRegister = (req: Request, res: Response, next: NextFunction
   const { username, password } = req.body;
 
   if (!username || !password) {
-    res.status(400).json({ error: 'Username und Passwort sind erforderlich' });
-    return;
+    return res.status(400).json({ error: 'Username und Passwort sind erforderlich' });
   }
 
   if (password.length < 6) {
-    res.status(400).json({ error: 'Passwort muss mindestens 6 Zeichen lang sein' });
-    return;
+    return res.status(400).json({ error: 'Passwort muss mindestens 6 Zeichen lang sein' });
   }
 
   next();
@@ -27,8 +38,7 @@ export const validateLogin = (req: Request, res: Response, next: NextFunction): 
   const { username, password } = req.body;
 
   if (!username || !password) {
-    res.status(400).json({ error: 'Username und Passwort sind erforderlich' });
-    return;
+    return res.status(400).json({ error: 'Username und Passwort sind erforderlich' });
   }
 
   next();
@@ -41,15 +51,14 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction): vo
   const token = req.cookies?.token;
 
   if (!token) {
-    res.status(401).json({ error: 'Nicht autorisiert – kein Token gefunden' });
-    return;
+    return res.status(401).json({ error: 'Nicht autorisiert – kein Token gefunden' });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'defaultsecret');
-    (req as any).user = decoded;
-    next(); // ✅ Token korrekt → weiter
-  } catch {
-    res.status(403).json({ error: 'Token ungültig oder abgelaufen' });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'defaultsecret') as AuthPayload;
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(403).json({ error: 'Token ungültig oder abgelaufen' });
   }
 };

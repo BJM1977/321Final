@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.services';
 
-
 // Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -26,14 +25,13 @@ import { MatCardModule } from '@angular/material/card';
     MatCardModule
   ]
 })
-
 export class RegisterComponent {
   username = '';
+  email = '';
   password = '';
   confirmPassword = '';
   error = '';
   success = '';
-
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -41,9 +39,18 @@ export class RegisterComponent {
     this.error = '';
     this.success = '';
 
-    // Validierung
-    if (!this.username || !this.password || !this.confirmPassword) {
+    const username = this.username.trim();
+    const email = this.email.trim();
+    const password = this.password;
+    const confirmPassword = this.confirmPassword;
+
+    if (!this.username || !this.email || !this.password || !this.confirmPassword) {
       this.error = 'Bitte fülle alle Felder aus.';
+      return;
+    }
+
+    if (!this.validateEmail(this.email)) {
+      this.error = 'Bitte gib eine gültige E-Mail-Adresse ein.';
       return;
     }
 
@@ -57,8 +64,7 @@ export class RegisterComponent {
       return;
     }
 
-    // API-Call an Backend
-    this.authService.register(this.username, this.password).subscribe({
+    this.authService.register(this.username, this.email, this.password).subscribe({
       next: () => {
         this.success = 'Registrierung erfolgreich!';
         setTimeout(() => this.router.navigate(['/login']), 2000);
@@ -67,5 +73,9 @@ export class RegisterComponent {
         this.error = err.error?.error || 'Registrierung fehlgeschlagen.';
       }
     });
+  }
+
+  private validateEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 }

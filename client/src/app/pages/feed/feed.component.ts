@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ChatService } from '../../services/chat.service';
+
 import { Subscription } from 'rxjs';
 import { MatInputModule } from '@angular/material/input'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { FormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common'
+import { ChatService } from '../../services/chat.service'
 
 @Component({
   standalone: true,

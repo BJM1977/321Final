@@ -17,6 +17,11 @@
       <input matInput type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required />
     </mat-form-field>
 
+    <mat-form-field appearance="fill">
+      <mat-label>E-Mail</mat-label>
+      <input matInput type="email" [(ngModel)]="email" required>
+    </mat-form-field>
+
     <button mat-raised-button color="primary" type="submit" class="full-width">
       Registrieren
     </button>

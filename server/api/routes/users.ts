@@ -1,86 +1,71 @@
 import express from 'express';
 import { prisma } from '../../database';
 import { requireAuth } from '../middleware/authMiddleware';
-import { Database } from '../../database/database';
-
 
 const router = express.Router();
 
-// Hilfsfunktion für Admin-Check
+// 🔐 Admin-Prüfung
 function isAdmin(req: any): boolean {
   return req.user?.role === 'Admin';
 }
 
-// 📌 GET /users/me – eigener Benutzer
-router.get('/me', requireAuth, async (req, res) => {
-  try {
-    const userId = (req as any).user.userId;
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, username: true, email: true, role: true },
-    });
-
-    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden' });
-
-    res.status(200).json(user);
-  } catch {
-    res.status(500).json({ error: 'Fehler beim Abrufen des Benutzers' });
-  }
-});
-
-// 📌 PUT /users/me – eigenes Profil aktualisieren
+// 📌 PUT /users/me – Profil aktualisieren (nur für eingeloggte Nutzer)
 router.put('/me', requireAuth, async (req, res) => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = req.user.userId;
     const { username, email } = req.body;
 
     const updated = await prisma.user.update({
       where: { id: userId },
       data: { username, email },
-      select: { id: true, username: true, email: true, role: true },
+      select: { id: true, username: true, email: true, roleId: true },
     });
 
     res.status(200).json(updated);
-  } catch {
+  } catch (err) {
+    console.error('Fehler beim Profil-Update:', err);
     res.status(500).json({ error: 'Fehler beim Aktualisieren' });
   }
 });
 
-// 📌 GET /users – nur für Admins
+// 📌 GET /users – Alle Benutzer anzeigen (nur Admins)
 router.get('/', requireAuth, async (req, res) => {
   if (!isAdmin(req)) {
     return res.status(403).json({ error: 'Nur Admins erlaubt' });
   }
 
-  const users = await prisma.user.findMany({
-    select: { id: true, username: true, email: true, role: true },
-  });
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        roleId: true,
+        active: true,
+      },
+    });
 
-  res.status(200).json(users);
+    res.status(200).json(users);
+  } catch (err) {
+    console.error('Fehler beim Laden der Benutzer:', err);
+    res.status(500).json({ error: 'Fehler beim Laden der Benutzer' });
+  }
 });
 
-// 📌 DELETE /users/:id – nur Admins
+// 📌 DELETE /users/:id – Benutzer löschen (nur Admins)
 router.delete('/:id', requireAuth, async (req, res) => {
   if (!isAdmin(req)) {
     return res.status(403).json({ error: 'Nur Admins erlaubt' });
   }
 
-  const { id } = req.params;
-
   try {
-    await prisma.user.delete({ where: { id } });
+    const { id } = req.params;
+    await prisma.user.delete({ where: { id: Number(id) } });
     res.status(200).json({ message: 'Benutzer gelöscht' });
-  } catch {
+  } catch (err) {
+    console.error('Fehler beim Löschen:', err);
     res.status(500).json({ error: 'Fehler beim Löschen' });
   }
 });
 
-// ✅ Export für index.ts
 export const userRouter = router;
-export function registerUserRoutes(app: Express, db: Database): void {
-  app.get('/users', async (req, res) => {
-    const users = await db.executeSQL('SELECT * FROM users');
-    res.json(users);
-  });
-}
