@@ -5,10 +5,10 @@ import jwt from 'jsonwebtoken';
  * Validiert Registrierungsdaten
  */
 export const validateRegister = (req: Request, res: Response, next: NextFunction): void => {
-  const { username, email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!username || !email || !password) {
-    res.status(400).json({ error: 'Alle Felder sind erforderlich' });
+  if (!username || !password) {
+    res.status(400).json({ error: 'Username und Passwort sind erforderlich' });
     return;
   }
 
@@ -24,10 +24,10 @@ export const validateRegister = (req: Request, res: Response, next: NextFunction
  * Validiert Login-Daten
  */
 export const validateLogin = (req: Request, res: Response, next: NextFunction): void => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!email || !password) {
-    res.status(400).json({ error: 'E-Mail und Passwort erforderlich' });
+  if (!username || !password) {
+    res.status(400).json({ error: 'Username und Passwort sind erforderlich' });
     return;
   }
 

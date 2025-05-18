@@ -1,4 +1,5 @@
 import express from 'express';
+import { Database } from '../../database/database';
 
 const router = express.Router();
 
@@ -23,3 +24,9 @@ router.get('/:name', (req, res) => {
 
 // ✅ Benannter Export für index.ts
 export const roleRouter = router;
+export function registerRoleRoutes(app: Express, db: Database): void {
+  app.get('/roles', async (req, res) => {
+    const roles = await db.executeSQL('SELECT * FROM roles');
+    res.json(roles);
+  });
+}
