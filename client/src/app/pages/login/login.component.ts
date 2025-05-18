@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.services';
+import { ChatService } from '../../services/chat.service'
 
 @Component({
   selector: 'app-login',
@@ -30,11 +31,12 @@ export class LoginComponent {
   password = '';
   error = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private chatService: ChatService) {}
 
   onLogin() {
     this.authService.login(this.username, this.password).subscribe({
       next: () => {
+        this.chatService.setUsername(this.username);
         this.router.navigate(['/feed']); // oder Dashboard
       },
       error: () => {
