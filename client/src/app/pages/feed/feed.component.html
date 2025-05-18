@@ -1,6 +1,6 @@
 <div class="chat-container">
   <div class="messages">
-    <div *ngFor="let message of messages">
+    <div *ngFor="let message of messages" class="message">
       <strong>{{ message.username }}:</strong> {{ message.text }}
     </div>
   </div>
@@ -12,6 +12,8 @@
         [(ngModel)]="messageText"
         placeholder="Nachricht schreiben..."
         (keyup.enter)="sendMessage()"
+        name="chatMessage"
+        [ngModelOptions]="{ standalone: true }"
       />
     </mat-form-field>
   </div>
