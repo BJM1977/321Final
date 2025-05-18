@@ -2,10 +2,10 @@ services:
   mariadb:
     image: mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: supersecret123
       MYSQL_DATABASE: minitwitter
       MYSQL_USER: minitwitter
-      MYSQL_PASSWORD: password
+      MYSQL_PASSWORD: supersecret123
     ports:
       - 3306:3306
     volumes:
