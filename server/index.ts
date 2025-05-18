@@ -4,6 +4,9 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { prisma } from './database';
+import {authRouter} from "./api/routes/auth";
+import {userRouter} from "./api/routes/users";
+import {roleRouter} from "./api/routes/roles";
 
 const app = express();
 const server = http.createServer(app);
@@ -95,6 +98,10 @@ io.on('connection', (socket) => {
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use('/auth', authRouter);
+app.use('/users', userRouter);
+app.use('/roles', roleRouter);
+
 
 // 📡 Start
 const PORT = process.env.PORT || 3000;

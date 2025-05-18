@@ -1,6 +1,8 @@
 import express from 'express';
 import { prisma } from '../../database';
 import { requireAuth } from '../middleware/authMiddleware';
+import { Database } from '../../database/database';
+
 
 const router = express.Router();
 
@@ -76,3 +78,9 @@ router.delete('/:id', requireAuth, async (req, res) => {
 
 // ✅ Export für index.ts
 export const userRouter = router;
+export function registerUserRoutes(app: Express, db: Database): void {
+  app.get('/users', async (req, res) => {
+    const users = await db.executeSQL('SELECT * FROM users');
+    res.json(users);
+  });
+}

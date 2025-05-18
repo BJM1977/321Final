@@ -1,28 +1,18 @@
 import express, { Express } from 'express'
-import { Database } from '../database'
-import { registerUserRoutes } from './routes/users'
-import { registerRoleRoutes } from './routes/roles'
-import { registerAuthRoutes } from './routes/auth'
 import cookieParser from 'cookie-parser';
+import { Database } from '../database/database';
+
 
 export class API {
-  // Properties
-  db: Database
-  app: Express
+  app: Express;
+  db: Database;
 
-  // Constructor
   constructor(app: Express) {
-    this.app = app
-    this.db = new Database()
-
-    //middleware
+    this.app = app;
+    this.db = new Database();
     this.app.use(cookieParser());
     this.app.use(express.json());
 
-
-    registerUserRoutes(app, this.db)
-    registerRoleRoutes(app, this.db)
-    registerAuthRoutes(app, this.db)
 
     // Fallback
     this.app.use((req, res) => {
